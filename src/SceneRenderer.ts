@@ -13,22 +13,26 @@ export default class SceneRenderer {
         this.scene = scene
         this.renderer = renderer
         this.container = container
-        container.appendChild(renderer.domElement);
+        container.appendChild(renderer.domElement)
     }
 
     enableStats(stats: Stats) {
-        this.stats = stats;
-        this.container.appendChild(this.stats.domElement);
+        this.stats = stats
+        this.container.appendChild(this.stats.domElement)
     }
 
     render(): void {
         this.stats?.begin()
-        const self = this;
+        const self = this
 
-        this.renderer.render(this.scene, this.camera);
-        this.stats?.end();
+        this.renderer.render(this.scene, this.camera)
+        this.stats?.end()
         requestAnimationFrame(function () {
-            self.render();
+            self.render()
         });
+    }
+
+    addAxesHelper(axesHelper: THREE.AxesHelper) {
+        this.scene.add(axesHelper)
     }
 }

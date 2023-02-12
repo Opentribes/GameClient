@@ -13,7 +13,7 @@ onMounted(function () {
     return;
   }
 
-  const sceneRenderer = factory.createDefaultRenderer(element);
+  const sceneRenderer = factory.createDefaultRenderer(element, true);
 
   sceneRenderer.render();
 });
