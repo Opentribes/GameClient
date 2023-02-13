@@ -15,7 +15,9 @@ export default class SceneRenderer {
         this.container = container
         container.appendChild(renderer.domElement)
     }
-
+    getScene():THREE.Scene{
+        return this.scene;
+    }
     enableStats(stats: Stats) {
         this.stats = stats
         this.container.appendChild(this.stats.domElement)

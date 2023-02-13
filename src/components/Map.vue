@@ -1,20 +1,28 @@
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
 import SceneRendererFactory from "../SceneRendererFactory";
+import TileRepository from "../repository/TileRepository";
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+
 
 const root = ref<HTMLElement | null>(null);
 
+const loader =  new GLTFLoader();
 const factory = new SceneRendererFactory();
+const repository = new TileRepository(tiles,loader);
 
-
-onMounted(function () {
+onMounted(async function () {
   const element = root.value;
   if (element === null) {
     return;
   }
-
+  const tileList = await repository.getTileList();
   const sceneRenderer = factory.createDefaultRenderer(element, true);
+  const scene = sceneRenderer.getScene();
 
+  const tile = tileList.get(1);
+  console.log(tile.object);
+scene.add(tile.object);
   sceneRenderer.render();
 });
 

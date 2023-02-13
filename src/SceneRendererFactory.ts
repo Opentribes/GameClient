@@ -18,20 +18,21 @@ export default class SceneRendererFactory {
         const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
         renderer.setPixelRatio(window.devicePixelRatio)
         renderer.setSize(width, height)
-        const offset=10;
+        const offset = 5;
 
         const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
         scene.add(light);
-        camera.position.set(0.5, offset, offset+0.5);
+        camera.position.set(0, offset, offset);
 
 
-        camera.rotateX(degToRad(-25));
+        camera.rotateX(degToRad(-45));
 
 
         const defaultSceneRenderer = new SceneRenderer(container, camera, scene, renderer)
         if (debugMode) {
 
             const gridHelper = new THREE.GridHelper(50, 50);
+            gridHelper.position.set(0.5,0,0.5);
             scene.add(gridHelper);
             const helper = new THREE.CameraHelper(camera);
             helper.setColors(
