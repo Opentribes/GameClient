@@ -19,11 +19,11 @@ export default class TileRepository {
 
     async getTileList() {
         let promises:Array<PromisedTile> = [];
-        const scope = this;
-        this.tileList.forEach(function (tile) {
+
+        this.tileList.forEach( tile => {
             promises.push({
                 id: tile.id,
-                promise: scope.loader.loadAsync(tile.path)
+                promise: this.loader.loadAsync(tile.path)
             });
         });
 
@@ -32,14 +32,16 @@ export default class TileRepository {
 
         tileData.forEach((data, index) => {
             let currentTileIndex = promises[index].id;
-            let currentTile = scope.tileList.get(currentTileIndex);
-            data.scene.parent = null;
+            let currentTile = this.tileList.get(currentTileIndex);
+
             let object = data.scene;
+            object.parent = null;
             object.name = currentTileIndex;
             object.scale.set(0.5,0.5,0.5);
          
             currentTile.object = object;
-            scope.tileList.set(currentTileIndex, currentTile);
+
+            this.tileList.set(currentTileIndex, currentTile);
         });
 
         return this.tileList;
