@@ -17,32 +17,20 @@ export default class TileRepository {
     }
 
 
-    async getTileList() {
-        let promises:Array<PromisedTile> = [];
+    async getTileList(): Promise<Map<number, Tile>> {
 
-        this.tileList.forEach( tile => {
-            promises.push({
-                id: tile.id,
-                promise: this.loader.loadAsync(tile.path)
-            });
-        });
-
-
-        const tileData = await Promise.all(promises.map(({promise}) => promise));
-
-        tileData.forEach((data, index) => {
-            let currentTileIndex = promises[index].id;
-            let currentTile = this.tileList.get(currentTileIndex);
-
+        for (const tile of this.tileList.values()) {
+            const data = await this.loader.loadAsync(tile.path);
             let object = data.scene;
-            object.parent = null;
-            object.name = currentTileIndex;
-            object.scale.set(0.5,0.5,0.5);
-         
-            currentTile.object = object;
 
-            this.tileList.set(currentTileIndex, currentTile);
-        });
+            object.parent = null;
+            object.name = tile.id;
+            object.scale.set(0.5, 0.5, 0.5);
+
+            tile.object = object;
+
+            this.tileList.set(tile.id, tile);
+        }
 
         return this.tileList;
     }
