@@ -3,7 +3,7 @@ import {createApp} from 'vue';
 import App from './components/App.vue';
 import router from './router';
 
-import './../assets/styles/style.scss';
+import './../styles/style.scss';
 
 const appContainer = document.getElementById('app');
 if (appContainer instanceof HTMLElement) {
