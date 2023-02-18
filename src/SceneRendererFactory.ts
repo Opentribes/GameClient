@@ -1,63 +1,56 @@
 import SceneRenderer from "./SceneRenderer";
 import * as THREE from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
-import {degToRad} from "three/src/math/MathUtils";
+
+import {JsonCenterLocation} from "./types/JsonMapData";
+import GridHelper from "./helpers/GridHelper";
+import AxisHelper from "./helpers/AxisHelper";
+import LocationHelper from "./helpers/LocationHelper";
+import CameraHelper from "./helpers/CameraHelper";
 
 export default class SceneRendererFactory {
 
-    createDefaultRenderer(container: HTMLElement, debugMode: boolean = false): SceneRenderer {
+    createDefaultRenderer(container: HTMLElement, centerLocation: JsonCenterLocation, debugMode: boolean = false): SceneRenderer {
 
         const width = container.clientWidth
         const height = container.clientHeight
         const aspectRatio = width / height
 
-        const camera = new THREE.PerspectiveCamera(45, aspectRatio, 1, 10000)
+        const camera = new THREE.PerspectiveCamera(50, aspectRatio)
         const scene = new THREE.Scene()
-        scene.background = new THREE.Color().setHSL(0.6, 0, 1);
-        scene.fog = new THREE.Fog(scene.background, 1, 5000);
+
         const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
         renderer.setPixelRatio(window.devicePixelRatio)
         renderer.setSize(width, height)
-        const offset = 5;
-
         const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
         scene.add(light);
-        camera.position.set(0, offset, offset);
 
 
-        camera.rotateX(degToRad(-45));
-
-
-        const defaultSceneRenderer = new SceneRenderer(container, camera, scene, renderer)
+        const defaultSceneRenderer = new SceneRenderer(container, centerLocation, camera, scene, renderer)
         if (debugMode) {
-
-            const gridHelper = new THREE.GridHelper(50, 50);
-            gridHelper.position.set(0.5,0,0.5);
-            scene.add(gridHelper);
-            const helper = new THREE.CameraHelper(camera);
-            helper.setColors(
-                new THREE.Color(0x00A3AA),
-                new THREE.Color(0x000000),
-                new THREE.Color(0x000000),
-                new THREE.Color(0x00AA00),
-                new THREE.Color(0xA30000),
-            )
-            scene.add(helper);
-
-
-            defaultSceneRenderer.addAxesHelper(new THREE.AxesHelper(20))
+            defaultSceneRenderer.addHelper(new GridHelper());
+            defaultSceneRenderer.addHelper(new AxisHelper());
+            defaultSceneRenderer.addHelper(new LocationHelper());
+            defaultSceneRenderer.addHelper(new CameraHelper(camera));
             defaultSceneRenderer.enableStats(Stats())
         }
 
-        window.addEventListener('resize', onWindowResize, false)
+        window.addEventListener('keypress', (event) => {
+            defaultSceneRenderer.onMove(event);
+        }, false)
 
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight
+        window.addEventListener('resize', () => {
+            const width = container.clientWidth
+            const height = container.clientHeight
+            const aspectRatio = width / height
+
+            camera.aspect = aspectRatio
             camera.updateProjectionMatrix()
-            renderer.setSize(window.innerWidth, window.innerHeight)
+            renderer.setSize(width, height)
             defaultSceneRenderer.render()
-        }
+        }, false)
 
         return defaultSceneRenderer;
     }
+
 }

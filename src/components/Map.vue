@@ -3,26 +3,29 @@ import {onMounted, ref} from "vue";
 import SceneRendererFactory from "../SceneRendererFactory";
 import TileRepository from "../repository/TileRepository";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+import GameMap from "../GameMap";
 
 
 const root = ref<HTMLElement | null>(null);
 
-const loader =  new GLTFLoader();
+const loader = new GLTFLoader();
 const factory = new SceneRendererFactory();
-const repository = new TileRepository(tiles,loader);
+const repository = new TileRepository(tiles, loader);
 
 onMounted(async function () {
   const element = root.value;
   if (element === null) {
     return;
   }
-  const tileList = await repository.getTileList();
-  const sceneRenderer = factory.createDefaultRenderer(element, true);
+  await repository.loadTiles();
+
+  const sceneRenderer = factory.createDefaultRenderer(element, centerLocation, true);
   const scene = sceneRenderer.getScene();
 
-  const tile = tileList.get(1);
-  console.log(tile.object);
-scene.add(tile.object);
+  const map = new GameMap(repository, scene);
+  map.drawTiles(mapData);
+
+
   sceneRenderer.render();
 });
 
