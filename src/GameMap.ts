@@ -1,16 +1,16 @@
 import {Scene} from "three/src/Three";
-import {JsonMapData} from "./types/JsonMapData";
+import {JsonCenterLocation, JsonMapData} from "./types/JsonMapData";
 import TileRepository from "./repository/TileRepository";
 
 export default class GameMap {
     tileRepository: TileRepository;
     scene: Scene;
+    private isLoading: boolean = false
 
     constructor(tileRepository: TileRepository, scene: Scene) {
         this.scene = scene;
         this.tileRepository = tileRepository;
     }
-
 
 
     drawTiles(data: JsonMapData) {
@@ -40,5 +40,20 @@ export default class GameMap {
         )
 
 
+    }
+
+    async updateTiles(centerLocation: JsonCenterLocation, mapSize: THREE.Vector3) {
+        if (this.isLoading) {
+            return;
+        }
+        this.isLoading = true
+
+        const headers = new Headers();
+        headers.append('X-Requested-With', 'XMLHttpRequest');
+
+        const response = await fetch(`/map/${centerLocation.x}/${centerLocation.y}?viewportHeight=${mapSize.z}&viewportWidth=${mapSize.x}`, {headers: headers})
+        const data = await response.json()
+        this.drawTiles(data.map);
+        this.isLoading = false
     }
 }

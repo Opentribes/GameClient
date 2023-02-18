@@ -13,7 +13,11 @@ export default class SceneRenderer {
 
     centerLocation: JsonCenterLocation
 
-    constructor(container: HTMLElement, centerLocation: JsonCenterLocation, camera: THREE.Camera, scene: THREE.Scene, renderer: THREE.Renderer) {
+    constructor(container: HTMLElement,
+                centerLocation: JsonCenterLocation,
+                camera: THREE.Camera,
+                scene: THREE.Scene,
+                renderer: THREE.Renderer) {
         this.camera = camera
         this.scene = scene
         this.renderer = renderer
@@ -54,12 +58,12 @@ export default class SceneRenderer {
     }
 
     updateCamera() {
-        const offset = 7;
+        const offset =30;
         this.camera.position.set(this.centerLocation.x, offset, this.centerLocation.y + offset);
     }
 
     onMove(event: KeyboardEvent) {
-        const moveSpeed = 0.5;
+        const moveSpeed = 1;
         if (event.key === 'd') {
             this.centerLocation.x += moveSpeed;
         }
@@ -76,7 +80,9 @@ export default class SceneRenderer {
         this.updateCamera()
         this.updateHelpers()
     }
-
+    getCenterLocation():JsonCenterLocation{
+        return this.centerLocation;
+    }
 
     private updateHelpers() {
         const helpers = this.scene.getObjectsByProperty('name', 'helper');

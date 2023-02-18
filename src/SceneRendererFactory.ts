@@ -7,6 +7,7 @@ import GridHelper from "./helpers/GridHelper";
 import AxisHelper from "./helpers/AxisHelper";
 import LocationHelper from "./helpers/LocationHelper";
 import CameraHelper from "./helpers/CameraHelper";
+import UpdateBoxHelper from "./helpers/UpdateBoxHelper";
 
 export default class SceneRendererFactory {
 
@@ -19,6 +20,8 @@ export default class SceneRendererFactory {
         const camera = new THREE.PerspectiveCamera(50, aspectRatio)
         const scene = new THREE.Scene()
 
+
+
         const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
         renderer.setPixelRatio(window.devicePixelRatio)
         renderer.setSize(width, height)
@@ -26,18 +29,18 @@ export default class SceneRendererFactory {
         scene.add(light);
 
 
+        const locationHelper = new LocationHelper();
         const defaultSceneRenderer = new SceneRenderer(container, centerLocation, camera, scene, renderer)
         if (debugMode) {
             defaultSceneRenderer.addHelper(new GridHelper());
             defaultSceneRenderer.addHelper(new AxisHelper());
-            defaultSceneRenderer.addHelper(new LocationHelper());
-            defaultSceneRenderer.addHelper(new CameraHelper(camera));
+            defaultSceneRenderer.addHelper(locationHelper);
+
+          //  defaultSceneRenderer.addHelper(new CameraHelper(camera));
             defaultSceneRenderer.enableStats(Stats())
         }
 
-        window.addEventListener('keypress', (event) => {
-            defaultSceneRenderer.onMove(event);
-        }, false)
+
 
         window.addEventListener('resize', () => {
             const width = container.clientWidth
