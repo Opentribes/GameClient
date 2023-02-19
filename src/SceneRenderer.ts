@@ -58,7 +58,7 @@ export default class SceneRenderer {
     }
 
     updateCamera() {
-        const offset =30;
+        const offset =8;
         this.camera.position.set(this.centerLocation.x, offset, this.centerLocation.y + offset);
     }
 

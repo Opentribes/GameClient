@@ -25,9 +25,14 @@ export default class SceneRendererFactory {
         const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true})
         renderer.setPixelRatio(window.devicePixelRatio)
         renderer.setSize(width, height)
-        const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
-        scene.add(light);
+        renderer.physicallyCorrectLights = true;
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.setClearColor( 0xcccccc );
 
+
+        const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+        directionalLight.position.set(0,100,0);
+        scene.add( directionalLight );
 
         const locationHelper = new LocationHelper();
         const defaultSceneRenderer = new SceneRenderer(container, centerLocation, camera, scene, renderer)
@@ -35,8 +40,6 @@ export default class SceneRendererFactory {
             defaultSceneRenderer.addHelper(new GridHelper());
             defaultSceneRenderer.addHelper(new AxisHelper());
             defaultSceneRenderer.addHelper(locationHelper);
-
-          //  defaultSceneRenderer.addHelper(new CameraHelper(camera));
             defaultSceneRenderer.enableStats(Stats())
         }
 

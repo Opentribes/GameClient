@@ -2,6 +2,12 @@ export interface JsonCenterLocation{
     x:number
     y:number
 }
+
+export interface JsonViewport{
+    width:number
+    height:number
+    center: JsonCenterLocation
+}
 export interface JsonMapTileLocation {
     x: number;
     y: number;
@@ -17,4 +23,5 @@ export interface JsonMapLayer{
 }
 export interface JsonMapData {
     layers: JsonMapLayer
+    viewport: JsonViewport
 }

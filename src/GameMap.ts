@@ -1,11 +1,11 @@
 import {Scene} from "three/src/Three";
 import {JsonCenterLocation, JsonMapData} from "./types/JsonMapData";
 import TileRepository from "./repository/TileRepository";
+import * as THREE from 'three';
 
 export default class GameMap {
     tileRepository: TileRepository;
     scene: Scene;
-    private isLoading: boolean = false
 
     constructor(tileRepository: TileRepository, scene: Scene) {
         this.scene = scene;
@@ -14,25 +14,29 @@ export default class GameMap {
 
 
     drawTiles(data: JsonMapData) {
-
+        const tempObject = new THREE.Object3D();
+        const viewport = data.viewport;
         data.layers.background.forEach((tileJson) => {
                 try {
-                    const currentTile = this.tileRepository.getByName(tileJson.data);
 
-                    const tile = this.scene.getObjectByName(tileJson.id);
-                    if (tile !== undefined) {
+                    const mesh = this.scene.getObjectByName(tileJson.data.toString());
+                    if (!(mesh instanceof THREE.InstancedMesh)) {
                         return;
                     }
-
-                    const mesh = currentTile.object;
-                    if (mesh === undefined) {
-                        throw new Error(`mesh data for tile ${tileJson.id} was not loaded`);
+                    const normalizedLocation = {
+                        x: tileJson.location.x - (viewport.center.x - ~~(viewport.width / 2)),
+                        y: tileJson.location.y - (viewport.center.y - ~~(viewport.height / 2))
                     }
 
-                    const clonedData = mesh.clone(true);
+                    tempObject.scale.set(0.5, 0.5, 0.5);
+                    tempObject.position.set(tileJson.location.x, 0, tileJson.location.y);
+                    tempObject.matrixAutoUpdate = false;
+                    tempObject.updateMatrix()
 
-                    clonedData.position.set(tileJson.location.x, 0, tileJson.location.y);
-                    this.scene.add(clonedData);
+                    const index = (normalizedLocation.y + 1) * viewport.width + normalizedLocation.x
+
+                    mesh.setMatrixAt(index, tempObject.matrix)
+                    mesh.instanceMatrix.needsUpdate = true;
                 } catch (error) {
                     return;
                 }
@@ -42,18 +46,12 @@ export default class GameMap {
 
     }
 
-    async updateTiles(centerLocation: JsonCenterLocation, mapSize: THREE.Vector3) {
-        if (this.isLoading) {
-            return;
-        }
-        this.isLoading = true
-
+    async updateTiles(mapData: JsonMapData) {
         const headers = new Headers();
         headers.append('X-Requested-With', 'XMLHttpRequest');
 
-        const response = await fetch(`/map/${centerLocation.x}/${centerLocation.y}?viewportHeight=${mapSize.z}&viewportWidth=${mapSize.x}`, {headers: headers})
+        const response = await fetch(`/map/${mapData.viewport.center.x}/${mapData.viewport.center.y}`, {headers: headers})
         const data = await response.json()
         this.drawTiles(data.map);
-        this.isLoading = false
     }
 }
