@@ -22,7 +22,8 @@ export default class TileRepository {
 
 
         for (const tile of this.tileList.values()) {
-            const data = await this.loader.loadAsync(`${tile.path}?version=12`);
+            const data = await this.loader.loadAsync(`${tile.path}?version=122`);
+
             const mesh = data.scene.children.at(0);
 
             if (!(mesh instanceof THREE.Mesh)) {
@@ -32,7 +33,8 @@ export default class TileRepository {
             const tileInstance = new THREE.InstancedMesh(mesh.geometry,mesh.material, buffer);
             tileInstance.name = tile.id.toString();
             tileInstance.uuid = tile.id.toString();
-            tileInstance.position.set(0,1000,0);
+            tileInstance.position.set(0,0,0);
+
             tileInstance.matrixAutoUpdate = false;
             tileInstance.instanceMatrix.needsUpdate = true;
             scene.add(tileInstance);

@@ -1,5 +1,5 @@
 import {Scene} from "three/src/Three";
-import {JsonCenterLocation, JsonMapData} from "./types/JsonMapData";
+import {JsonMapData} from "./types/JsonMapData";
 import TileRepository from "./repository/TileRepository";
 import * as THREE from 'three';
 
