@@ -72,19 +72,16 @@ onMounted(() => {
 provide('centerPosition', centerPosition)
 
 async function keyPress(event: KeyboardEvent) {
+  const movementMap = {
+    d: {dx: +1, dy: 0},
+    a: {dx: -1, dy: 0},
+    w: {dx: 0, dy: -1},
+    s: {dx: 0, dy: +1},
+  };
   const moveSpeed = 1;
-  if (event.key === 'd') {
-    centerPosition.value.x += moveSpeed;
-  }
-  if (event.key === 'a') {
-    centerPosition.value.x -= moveSpeed;
-  }
-  if (event.key === 'w') {
-    centerPosition.value.y -= moveSpeed;
-  }
-  if (event.key === 's') {
-    centerPosition.value.y += moveSpeed;
-  }
+  const movement = movementMap[event.key] ?? {dx: 0, dy: 0};
+  centerPosition.value.x += moveSpeed * movement.dx;
+  centerPosition.value.y += moveSpeed * movement.dy;
 }
 
 function onTileLoaded(object: THREE.Object3D, tile: Tile) {
