@@ -63,7 +63,7 @@ onMounted(() => {
   threeRenderer.outputEncoding = THREE.sRGBEncoding;
   threeRenderer.setClearColor(0xcccccc);
 
-  if (debugMode) {
+  if (debugMode.value) {
     threeRenderer.domElement.parentNode.appendChild(stats.domElement)
   }
 
