@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import * as THREE from 'three'
 import {onMounted, ref, defineProps, computed, inject} from "vue"
+import {useRouter} from 'vue-router'
 import {JsonCenterLocation, JsonMapData} from "../types/JsonMapData"
 import ViewPortBoundaryBox from "./three/ViewPortBoundaryBox.vue";
 
-
+const router = useRouter()
 const scene = inject('scene');
 const props = defineProps({
   debugMode: Boolean,
@@ -14,13 +15,20 @@ onMounted(() => {
   drawTiles(props.map, scene)
 })
 
+
 async function reload(centerLocation: JsonCenterLocation) {
   const headers = new Headers();
   headers.append('X-Requested-With', 'XMLHttpRequest');
   const response = await fetch(`/map/${centerLocation.x}/${centerLocation.y}`, {headers: headers})
   const data = await response.json()
   drawTiles(data.map, scene);
-
+  router.push({
+    name: 'map',
+    params: {
+      locationX: centerLocation.x,
+      locationY: centerLocation.y
+    }
+  })
 }
 
 function drawTiles(data: JsonMapData, scene: THREE.Scene) {
