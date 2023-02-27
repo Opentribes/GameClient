@@ -15,7 +15,7 @@ const map: JsonMapData = mapData
 const camera = ref(null)
 const renderer = ref(null)
 const centerPosition = ref(map.viewport.center)
-const instancedMeshes = ref([])
+
 
 const tilesLoaded = ref(false);
 const debugMode = ref(true)
@@ -53,16 +53,18 @@ const tileCount = computed(() => {
 
 onMounted(() => {
 
-  let threeCamera: THREE.PerspectiveCamera = camera.value.three
+  const threeCamera: THREE.PerspectiveCamera = camera.value.three
   threeCamera.rotateX(degToRad(-45))
   threeCamera.fov = 50
 
-  renderer.value.three.physicallyCorrectLights = true;
-  renderer.value.three.outputEncoding = THREE.sRGBEncoding;
-  renderer.value.three.setClearColor(0xcccccc);
+  const threeRenderer: THREE.Renderer = renderer.value.three
+
+  threeRenderer.physicallyCorrectLights = true;
+  threeRenderer.outputEncoding = THREE.sRGBEncoding;
+  threeRenderer.setClearColor(0xcccccc);
 
   if (debugMode) {
-    renderer.value.three.domElement.parentNode.appendChild(stats.domElement)
+    threeRenderer.domElement.parentNode.appendChild(stats.domElement)
   }
 
   window.addEventListener('keypress', keyPress, false)
@@ -104,7 +106,11 @@ function afterRender() {
 
 
   <div id="map">
-    <Renderer ref="renderer" :antialias="true" :autoResize="true" :alpha="true" :onBeforeRender="beforeRender"
+    <Renderer ref="renderer"
+              :antialias="true"
+              :autoResize="true"
+              :alpha="true"
+              :onBeforeRender="beforeRender"
               :onAfterRender="afterRender">
       <PerspectiveCamera ref="camera" :position="cameraPosition"/>
       <Scene background="#eeeeee">
