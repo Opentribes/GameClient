@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import {onMounted, ref, defineProps, computed, reactive, onUpdated, provide, created} from "vue"
+import {onMounted, ref, defineProps, computed, reactive, onUpdated, provide} from "vue"
+import type { Ref } from 'vue'
 import {degToRad} from "three/src/math/MathUtils"
 import {JsonMapData} from "../types/JsonMapData"
 import {getMesh, Tile} from "../entity/Tile"
@@ -8,6 +9,7 @@ import MapViewport from "./MapViewport.vue";
 import Geometry from "./three/Geometry.vue";
 import Material from "./three/Material.vue";
 import Stats from 'three/examples/jsm/libs/stats.module.js';
+import DebugHelpers from "./three/DebugHelpers.vue";
 
 const mapTiles: Tile[] = tiles
 const map: JsonMapData = mapData
@@ -15,7 +17,7 @@ const map: JsonMapData = mapData
 const camera = ref(null)
 const renderer = ref(null)
 const centerPosition = ref(map.viewport.center)
-
+const container = ref(null)
 
 const tilesLoaded = ref(false);
 const debugMode = ref(true)
@@ -23,9 +25,6 @@ const debugMode = ref(true)
 let loaded = 0;
 const stats = Stats()
 
-const centerPosition3D = computed(() => {
-  return [centerPosition.value.x, 0, centerPosition.value.y]
-})
 
 const cameraPosition = computed(() => {
   const cameraOffset = 5
@@ -37,14 +36,6 @@ const lightPosition = computed(() => {
   return [centerPosition.value.x, lightOffset, centerPosition.value.y]
 });
 
-const gridPosition = computed(() => {
-  const gridOffset = 0.5
-  return [centerPosition.value.x + gridOffset, 0, centerPosition.value.y + gridOffset]
-})
-
-const helperPosition = computed(() => {
-  return [centerPosition.value.x, 0.1, centerPosition.value.y]
-})
 
 const tileCount = computed(() => {
   return map.viewport.height * map.viewport.width
@@ -57,14 +48,14 @@ onMounted(() => {
   threeCamera.rotateX(degToRad(-45))
   threeCamera.fov = 50
 
-  const threeRenderer: THREE.Renderer = renderer.value.three
+  const threeRenderer: THREE.WebGLRenderer = renderer.value.three
 
   threeRenderer.physicallyCorrectLights = true;
   threeRenderer.outputEncoding = THREE.sRGBEncoding;
   threeRenderer.setClearColor(0xcccccc);
 
   if (debugMode.value) {
-    threeRenderer.domElement.parentNode.appendChild(stats.domElement)
+    container.value.appendChild(stats.domElement)
   }
 
   window.addEventListener('keypress', keyPress, false)
@@ -86,7 +77,6 @@ async function keyPress(event: KeyboardEvent) {
 
 function onTileLoaded(object: THREE.Object3D, tile: Tile) {
   tile.mesh = getMesh(object);
-  tile.mesh.scale
   loaded++
   tilesLoaded.value = loaded === mapTiles.length;
 }
@@ -100,9 +90,7 @@ function afterRender() {
 }
 </script>
 <template>
-
-
-  <div id="map">
+  <div id="map" ref="container">
     <Renderer ref="renderer"
               :antialias="true"
               :autoResize="true"
@@ -114,14 +102,7 @@ function afterRender() {
         <AmbientLight :color="0xffffff" :position="lightPosition" :intensity="0.8"/>
         <DirectionalLight :color="0xffffff" :position="lightPosition" :intensity="1"/>
 
-        <div v-if="debugMode">
-          <GridHelper :size="50" :divisions="50" :position="gridPosition"/>
-          <AxesHelper :size="5" :position="centerPosition3D"/>
-          <Mesh name="currentLocation" :position="helperPosition">
-            <BoxGeometry :width="0.5" :height="0" :depth="0.5"/>
-            <MeshBasicMaterial :color="0xff0000"/>
-          </Mesh>
-        </div>
+        <DebugHelpers v-if="debugMode"/>
 
         <GLTFLoader
             v-for="tile in mapTiles"
@@ -129,6 +110,7 @@ function afterRender() {
             :url="tile.path"
             :position="[0, -100, 0]"
         />
+
         <div v-if="tilesLoaded">
           <InstancedMesh
               v-for="tile in mapTiles"
